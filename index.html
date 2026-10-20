@@ -1,1 +1,337 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#081426">
+  <meta name="description" content="Welcome to Cole Bank, your digital banking portal.">
+  <title>Cole Bank | Banking, Simplified</title>
+  <style>
+    :root {
+      --navy: #081426;
+      --panel: #10213a;
+      --gold: #dfbd70;
+      --white: #f7f9fc;
+      --muted: #aab8cc;
+      --line: #263953;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--navy);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { width: min(1120px, 90%); margin: auto; }
+    header {
+      border-bottom: 1px solid var(--line);
+      background: #081426ee;
+    }
+    nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+    .mark {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      color: var(--gold);
+      font-family: Georgia, serif;
+      font-size: 27px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { font-size: 14px; color: var(--muted); }
+    .nav-links a:hover { color: var(--gold); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 19px;
+      border: 1px solid var(--gold);
+      border-radius: 9px;
+      background: var(--gold);
+      color: #091426;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .button.secondary {
+      color: var(--white);
+      background: transparent;
+      border-color: #50617a;
+    }
+    .hero { padding: 85px 0 75px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 55px;
+      align-items: center;
+    }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 20px 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      font-size: clamp(42px, 6vw, 70px);
+      line-height: 1.08;
+      letter-spacing: -1.8px;
+    }
+    h1 span { color: var(--gold); }
+    .hero-copy {
+      max-width: 520px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .trust {
+      margin-top: 30px;
+      color: #8394ab;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .preview {
+      position: relative;
+      padding: 26px;
+      border: 1px solid #31435c;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #142946, #0b1729);
+      box-shadow: 0 28px 80px #0005;
+      overflow: hidden;
+    }
+    .preview::before {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      top: -120px;
+      right: -80px;
+      border-radius: 50%;
+      background: #dfbd7017;
+    }
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip {
+      width: 43px;
+      height: 32px;
+      margin-top: 30px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #f2d995, #b58b3f);
+      opacity: .95;
+    }
+    .card-name { margin-top: 35px; font-size: 21px; letter-spacing: 2px; }
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-top: 25px;
+      font-size: 11px;
+      color: #d0d8e4;
+      letter-spacing: 1px;
+    }
+    .preview-note {
+      color: #879ab4;
+      font-size: 11px;
+      margin-top: 18px;
+      line-height: 1.6;
+    }
+    .section { padding: 65px 0; border-top: 1px solid #1b2b41; }
+    .section h2 {
+      margin: 12px 0;
+      font-family: Georgia, serif;
+      font-size: clamp(30px, 4vw, 43px);
+      font-weight: 500;
+    }
+    .section-intro { color: var(--muted); line-height: 1.7; max-width: 580px; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 30px;
+    }
+    .feature {
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #0d1b2f;
+    }
+    .feature-icon { font-size: 25px; color: var(--gold); }
+    .feature h3 { margin: 17px 0 10px; font-size: 17px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+    .cta {
+      padding: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+      border: 1px solid #4d4939;
+      border-radius: 18px;
+      background: linear-gradient(120deg, #142640, #101b2c);
+    }
+    .cta h2 { margin-top: 0; font-size: 31px; }
+    .cta p { margin-bottom: 0; color: var(--muted); line-height: 1.7; }
+    footer { padding: 28px 0; border-top: 1px solid var(--line); }
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 15px;
+      color: #899ab0;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    @media (max-width: 760px) {
+      .nav-links { gap: 12px; }
+      .nav-links .hide-mobile { display: none; }
+      .brand { font-size: 16px; letter-spacing: 1px; }
+      .nav-links .button { padding: 11px 13px; }
+      .hero { padding: 55px 0; }
+      .hero-grid { grid-template-columns: 1fr; gap: 35px; }
+      .preview { max-width: 460px; width: 100%; }
+      .features { grid-template-columns: 1fr; }
+      .cta { flex-direction: column; align-items: flex-start; padding: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a class="brand" href="index.html" aria-label="Cole Bank home">
+        <span class="mark">C</span>
+        <span>COLE BANK</span>
+      </a>
+      <div class="nav-links">
+        <a class="hide-mobile" href="#features">Our platform</a>
+        <a href="login.html">Sign in</a>
+        <a class="button" href="login.html">Get started</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">A new standard of digital access</div>
+          <h1>Your money.<br>Your future.<br><span>Your control.</span></h1>
+          <p class="hero-copy">
+            Welcome to Cole Bank. Discover a modern digital banking
+            experience designed around simplicity, privacy and
+            convenient access from your phone.
+          </p>
+          <div class="actions">
+            <a class="button" href="login.html">Access client portal →</a>
+            <a class="button secondary" href="#features">Explore the platform</a>
+          </div>
+          <p class="trust">
+            Designed for South Africa · Currency display: ZAR (R)<br>
+            Secure access requires an active, verified account.
+          </p>
+        </div>
+
+        <div>
+          <div class="preview">
+            <div class="preview-head">
+              <span>COLE BANK</span>
+              <span>CLIENT CARD CONCEPT</span>
+            </div>
+            <div class="chip"></div>
+            <div class="card-name">COLE <span style="color:#dfbd70">BANK</span></div>
+            <div class="card-bottom">
+              <span>YOUR NAME HERE<br><br>CLIENT EXPERIENCE</span>
+              <span style="font-size:23px;color:#dfbd70">C</span>
+            </div>
+          </div>
+          <p class="preview-note">
+            Illustrative design concept only. This is not a payment card
+            or evidence of an active bank account.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="eyebrow">Built around your experience</div>
+        <h2>Banking, made clearer.</h2>
+        <p class="section-intro">
+          A simple starting point for your digital financial experience,
+          with a dedicated client portal and room to grow.
+        </p>
+        <div class="features">
+          <article class="feature">
+            <div class="feature-icon">◇</div>
+            <h3>Private client access</h3>
+            <p>Sign in to a personal portal using your own account.
+              Access depends on secure authentication and permissions.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">⌁</div>
+            <h3>Mobile-first design</h3>
+            <p>A clean interface designed to work on phones,
+              tablets and desktop screens.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">◎</div>
+            <h3>Designed for transparency</h3>
+            <p>Real balances and transactions must be supplied by
+              an authorised banking provider—not invented by a webpage.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta">
+          <div>
+            <h2>Your client portal starts here.</h2>
+            <p>Create a login or access your existing account.</p>
+          </div>
+          <a class="button" href="login.html">Open client portal →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Cole Bank. All rights reserved.</span>
+      <span>Digital website concept · South Africa · ZAR (R)</span>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  </script>
+</body>
+</html>
