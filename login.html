@@ -1,69 +1,461 @@
 
-<script src="https://cdn.jsdelivr.net/npm/appwrite@29.0.0"></script>
-<script>
-const client = new Appwrite.Client()
-  .setEndpoint("https://nyc.cloud.appwrite.io/v1")
-  .setProject("6ad745480034e078da3e");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="Cole Bank secure client access.">
+  <title>Cole Bank | Secure Access</title>
 
-const account = new Appwrite.Account(client);
-const ID = Appwrite.ID;
+  <style>
+    :root {
+      --navy: #08111f;
+      --panel: #101d30;
+      --gold: #d9b45b;
+      --white: #f5f7fb;
+      --muted: #a7b1c2;
+      --border: rgba(217,180,91,.25);
+      --red: #ff8585;
+    }
 
-const message = document.getElementById("message");
-const form = document.getElementById("authForm");
-const button = document.getElementById("submitButton");
-const switchMode = document.getElementById("switchMode");
-const switchText = document.getElementById("switchText");
-const subtitle = document.getElementById("subtitle");
-const password = document.getElementById("password");
+    * { box-sizing: border-box; }
 
-let isRegistering = false;
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at top, #192b45 0%, transparent 55%),
+        var(--navy);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-switchMode.addEventListener("click", () => {
-  isRegistering = !isRegistering;
-  button.textContent = isRegistering ? "Create Account" : "Sign In";
-  switchText.textContent = isRegistering
-    ? "Already registered?" : "New to Cole Bank?";
-  switchMode.textContent = isRegistering ? " Sign in" : " Create account";
-  subtitle.textContent = isRegistering
-    ? "Create your secure client login" : "Secure client access";
-  password.autocomplete = isRegistering
-    ? "new-password" : "current-password";
-  message.textContent = "";
-});
+    .container {
+      width: 100%;
+      max-width: 430px;
+    }
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  message.textContent = "";
-  button.disabled = true;
-  button.textContent = "Please wait...";
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
 
-  const email = document.getElementById("email").value.trim();
-  const pass = password.value;
+    .brand-mark {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 14px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold);
+      border-radius: 18px;
+      color: var(--gold);
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      box-shadow: 0 0 28px rgba(217,180,91,.1);
+    }
 
-  try {
-    if (isRegistering) {
-      await account.create({
-        userId: ID.unique(),
-        email,
-        password: pass
+    .brand h1 {
+      margin: 0;
+      font-size: 27px;
+      letter-spacing: 3px;
+    }
+
+    .brand h1 span { color: var(--gold); }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 0;
+    }
+
+    .card {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(16,29,48,.94);
+      box-shadow: 0 22px 70px rgba(0,0,0,.28);
+    }
+
+    .security {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--gold);
+      font-size: 12px;
+      margin-bottom: 24px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 23px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0 0 24px;
+    }
+
+    label {
+      display: block;
+      margin: 17px 0 8px;
+      font-size: 13px;
+      color: #e0e5ee;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #34445b;
+      border-radius: 10px;
+      outline: none;
+      background: #091423;
+      color: var(--white);
+      font-size: 15px;
+    }
+
+    input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(217,180,91,.1);
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 24px;
+      padding: 15px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--gold);
+      color: #111827;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary:disabled {
+      cursor: wait;
+      opacity: .6;
+    }
+
+    .switch {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .switch button {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #message {
+      display: none;
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #message.error {
+      display: block;
+      color: var(--red);
+      background: rgba(255,100,100,.08);
+      border: 1px solid rgba(255,100,100,.2);
+    }
+
+    #message.success {
+      display: block;
+      color: #a7f3c2;
+      background: rgba(80,200,120,.08);
+      border: 1px solid rgba(80,200,120,.2);
+    }
+
+    .footer {
+      margin-top: 22px;
+      text-align: center;
+      color: #8390a4;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card { padding: 22px; }
+      .brand h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">CB</div>
+      <h1>COLE <span>BANK</span></h1>
+      <p>Your account. Your control.</p>
+    </header>
+
+    <section class="card">
+      <div class="security">
+        <span class="dot"></span>
+        SECURE ACCOUNT ACCESS
+      </div>
+
+      <h2 id="heading">Welcome back</h2>
+      <p class="subtitle" id="subtitle">
+        Sign in to access your Cole Bank dashboard.
+      </p>
+
+      <form id="authForm">
+        <div id="nameField" hidden>
+          <label for="fullName">Full name</label>
+          <input
+            id="fullName"
+            name="name"
+            type="text"
+            autocomplete="name"
+            maxlength="128"
+            placeholder="Enter your full name"
+          >
+        </div>
+
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          maxlength="254"
+          placeholder="you@example.com"
+          required
+        >
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          minlength="8"
+          maxlength="256"
+          placeholder="Enter your password"
+          required
+        >
+
+        <button class="primary" id="submitButton" type="submit">
+          Sign In
+        </button>
+      </form>
+
+      <div id="message" role="status" aria-live="polite"></div>
+
+      <div class="switch">
+        <span id="switchText">New to Cole Bank?</span>
+        <button type="button" id="switchMode">Create account</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Cole Bank account access<br>
+      Keep your password private. Never share your banking PIN.
+      <br><br>
+      Account authentication does not mean that a bank account,
+      deposit or money transfer has been activated.
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@29.0.0"></script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PROJECT_ID = "6ad745480034e078da3e";
+      const ENDPOINT = "https://nyc.cloud.appwrite.io/v1";
+
+      const client = new Appwrite.Client()
+        .setEndpoint(ENDPOINT)
+        .setProject(PROJECT_ID);
+
+      const account = new Appwrite.Account(client);
+
+      const form = document.getElementById("authForm");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const nameInput = document.getElementById("fullName");
+      const nameField = document.getElementById("nameField");
+      const submitButton = document.getElementById("submitButton");
+      const switchButton = document.getElementById("switchMode");
+      const switchText = document.getElementById("switchText");
+      const heading = document.getElementById("heading");
+      const subtitle = document.getElementById("subtitle");
+      const message = document.getElementById("message");
+
+      let registering = false;
+      let busy = false;
+
+      function showMessage(text, type = "error") {
+        message.textContent = text;
+        message.className = type;
+      }
+
+      function clearMessage() {
+        message.textContent = "";
+        message.className = "";
+      }
+
+      function setMode(createAccount) {
+        registering = createAccount;
+        clearMessage();
+
+        nameField.hidden = !registering;
+        nameInput.required = registering;
+
+        heading.textContent = registering
+          ? "Create your account"
+          : "Welcome back";
+
+        subtitle.textContent = registering
+          ? "Register to create your Cole Bank login."
+          : "Sign in to access your Cole Bank dashboard.";
+
+        submitButton.textContent = registering
+          ? "Create Account"
+          : "Sign In";
+
+        switchText.textContent = registering
+          ? "Already registered?"
+          : "New to Cole Bank?";
+
+        switchButton.textContent = registering
+          ? "Sign in"
+          : "Create account";
+
+        passwordInput.autocomplete = registering
+          ? "new-password"
+          : "current-password";
+      }
+
+      switchButton.addEventListener("click", () => {
+        if (!busy) setMode(!registering);
       });
 
-      await account.createEmailPasswordSession({ email, password: pass });
-      window.location.href = new URL(
-        "dashboard.html", window.location.href
-      ).href;
-    } else {
-      await account.createEmailPasswordSession({ email, password: pass });
-      window.location.href = new URL(
-        "dashboard.html", window.location.href
-      ).href;
-    }
-  } catch (error) {
-    message.textContent = error.message ||
-      "Unable to sign in. Please try again.";
-  } finally {
-    button.disabled = false;
-    button.textContent = isRegistering ? "Create Account" : "Sign In";
-  }
-});
-</script>
+      async function redirectIfSignedIn() {
+        try {
+          await account.get();
+          window.location.replace(
+            new URL("dashboard.html", window.location.href).href
+          );
+        } catch (_) {
+          // No active session; remain on the login page.
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (busy) return;
+        clearMessage();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const fullName = nameInput.value.trim();
+
+        if (!email || !password) {
+          showMessage("Enter your email address and password.");
+          return;
+        }
+
+        if (registering && !fullName) {
+          showMessage("Enter your full name.");
+          return;
+        }
+
+        if (password.length < 8) {
+          showMessage("Your password must be at least 8 characters.");
+          return;
+        }
+
+        busy = true;
+        submitButton.disabled = true;
+        submitButton.textContent = registering
+          ? "Creating account..."
+          : "Signing in...";
+
+        try {
+          if (registering) {
+            await account.create({
+              userId: Appwrite.ID.unique(),
+              email,
+              password,
+              name: fullName
+            });
+          }
+
+          await account.createEmailPasswordSession({
+            email,
+            password
+          });
+
+          showMessage(
+            registering
+              ? "Account created. Opening your dashboard..."
+              : "Signed in. Opening your dashboard...",
+            "success"
+          );
+
+          window.location.replace(
+            new URL("dashboard.html", window.location.href).href
+          );
+        } catch (error) {
+          console.error("Cole Bank authentication error:", error);
+
+          let text = error?.message ||
+            "Unable to complete your request. Please try again.";
+
+          if (error?.code === 401) {
+            text = registering
+              ? "Your account may have been created, but sign-in failed. Try signing in."
+              : "Incorrect email or password.";
+          } else if (error?.code === 409) {
+            text = "An account with this email may already exist. Try signing in.";
+          } else if (error?.code === 429) {
+            text = "Too many attempts. Please wait and try again.";
+          }
+
+          showMessage(text);
+        } finally {
+          busy = false;
+          submitButton.disabled = false;
+          submitButton.textContent = registering
+            ? "Create Account"
+            : "Sign In";
+        }
+      });
+
+      redirectIfSignedIn();
+    })();
+  </script>
+</body>
+</html>
