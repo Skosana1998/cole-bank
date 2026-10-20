@@ -1,1 +1,227 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#091426">
+  <title>Client Login | Cole Bank</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      color: #f5f7fb;
+      background: #07101f;
+    }
+    .card {
+      width: 100%;
+      max-width: 410px;
+      padding: 30px 24px;
+      border: 1px solid #263852;
+      border-radius: 20px;
+      background: #101d32;
+      box-shadow: 0 20px 60px #0005;
+    }
+    .logo {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 12px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: #d5ae55;
+      color: #091426;
+      font-size: 30px;
+    }
+    h1, .subtitle { text-align: center; }
+    h1 { margin: 8px 0; letter-spacing: 2px; }
+    .subtitle { color: #a9b8cd; font-size: 14px; }
+    label { display: block; margin: 18px 0 7px; font-size: 14px; }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #344762;
+      border-radius: 10px;
+      background: #091426;
+      color: white;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 10px;
+      background: #d5ae55;
+      color: #091426;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .switch {
+      margin-top: 18px;
+      text-align: center;
+      color: #c2cede;
+      font-size: 14px;
+    }
+    .switch a { color: #e6c777; cursor: pointer; }
+    #message {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      color: #8595ac;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">C</div>
+    <h1>COLE BANK</h1>
+    <p class="subtitle" id="subtitle">Secure client access</p>
+
+    <form id="authForm">
+      <label for="email">Email address</label>
+      <input id="email" type="email" autocomplete="email"
+        placeholder="you@example.com" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password"
+        autocomplete="current-password"
+        minlength="8" placeholder="At least 8 characters" required>
+
+      <button id="submitButton" type="submit">Sign In</button>
+    </form>
+
+    <p class="switch">
+      <span id="switchText">New to Cole Bank?</span>
+      <a id="switchMode"> Create account</a>
+    </p>
+
+    <div id="message" role="status" aria-live="polite"></div>
+    <div class="footer">
+      COLE BANK · SECURE CLIENT PORTAL
+    </div>
+  </main>
+
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    // Replace these placeholders with your Supabase project details.
+    // Use ONLY the project URL and publishable/anon key.
+    const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+    const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+    const message = document.getElementById("message");
+    const form = document.getElementById("authForm");
+    const button = document.getElementById("submitButton");
+    const switchMode = document.getElementById("switchMode");
+    const switchText = document.getElementById("switchText");
+    const subtitle = document.getElementById("subtitle");
+    const password = document.getElementById("password");
+
+    let isRegistering = false;
+    let supabase;
+
+    if (
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("YOUR_SUPABASE") &&
+      SUPABASE_KEY &&
+      !SUPABASE_KEY.includes("YOUR_SUPABASE")
+    ) {
+      supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+      message.textContent =
+        "Setup required: add your Supabase project URL and publishable key.";
+    }
+
+    switchMode.addEventListener("click", () => {
+      isRegistering = !isRegistering;
+      button.textContent = isRegistering
+        ? "Create Account" : "Sign In";
+      switchText.textContent = isRegistering
+        ? "Already registered?" : "New to Cole Bank?";
+      switchMode.textContent = isRegistering
+        ? " Sign in" : " Create account";
+      subtitle.textContent = isRegistering
+        ? "Create your secure client login"
+        : "Secure client access";
+      password.autocomplete = isRegistering
+        ? "new-password" : "current-password";
+      message.textContent = "";
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "";
+
+      if (!supabase) {
+        message.textContent =
+          "Please configure the Supabase URL and key first.";
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Please wait...";
+
+      const email = document.getElementById("email").value.trim();
+      const pass = password.value;
+
+      try {
+        if (isRegistering) {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: pass,
+            options: {
+              emailRedirectTo: new URL(
+                "dashboard.html", window.location.href
+              ).href
+            }
+          });
+
+          if (error) throw error;
+
+          if (data.session) {
+            window.location.href = new URL(
+              "dashboard.html", window.location.href
+            ).href;
+          } else {
+            message.textContent =
+              "Registration submitted. Check your email to confirm your account, then sign in.";
+          }
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password: pass
+          });
+
+          if (error) throw error;
+
+          window.location.href = new URL(
+            "dashboard.html", window.location.href
+          ).href;
+        }
+      } catch (error) {
+        message.textContent = error.message ||
+          "Something went wrong. Please try again.";
+      } finally {
+        button.disabled = false;
+        button.textContent = isRegistering
+          ? "Create Account" : "Sign In";
+      }
+    });
+  </script>
+</body>
+</html>
+
