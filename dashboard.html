@@ -1,1 +1,412 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#081426">
+<title>My Banking | Cole Bank</title>
+<style>
+:root{--bg:#081426;--panel:#10213a;--gold:#dfbd70;--text:#f6f8fc;--muted:#aab8cc;--line:#2a3d57;--red:#e87575;--green:#83d6ae}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:17px 5%;border-bottom:1px solid var(--line);gap:12px}
+.brand{font-weight:800;letter-spacing:2px}.brand span{color:var(--gold)}
+button,input,select{font:inherit}
+button{border:0;border-radius:9px;padding:12px 15px;background:var(--gold);color:#081426;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+button.outline{background:transparent;border:1px solid var(--line);color:var(--text)}
+button.danger{background:#48252d;color:#ffd9dc;border:1px solid #79404a}
+button.small{padding:9px 11px;font-size:12px}
+main{width:min(1080px,92%);margin:28px auto 60px}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:bold}
+h1{font-size:clamp(27px,5vw,38px);margin:10px 0}
+h2{font-size:19px;margin:0 0 16px}
+h3{font-size:15px}
+.muted{color:var(--muted);font-size:14px;line-height:1.7}
+.banner{background:#342b19;border:1px solid #76613b;padding:13px 15px;border-radius:10px;color:#f2dba4;font-size:12px;line-height:1.6;margin:20px 0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.panel{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px}
+.account-label{color:var(--muted);font-size:13px}
+.balance{font-size:clamp(23px,4vw,31px);font-weight:bold;margin:13px 0;color:var(--gold);overflow-wrap:anywhere}
+.tag{font-size:10px;color:#f2dba4;border:1px solid #76613b;border-radius:20px;padding:5px 8px;display:inline-block}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.section{margin-top:20px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+label{display:block;font-size:13px;margin:14px 0 7px;color:#d8e1ef}
+input,select{width:100%;padding:13px;background:#091629;border:1px solid #354963;border-radius:9px;color:white}
+form button{width:100%;margin-top:15px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.full{grid-column:1/-1}
+.hidden{display:none!important}
+.cardvisual{background:linear-gradient(135deg,#1b3452,#0a1527);border:1px solid #52617a;border-radius:15px;padding:20px;max-width:420px;margin-bottom:18px}
+.cardnumber{font-size:19px;letter-spacing:2px;margin:25px 0;overflow-wrap:anywhere}
+.notice{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px}
+#message{margin-top:12px;font-size:13px;line-height:1.6}
+.beneficiary{border-top:1px solid var(--line);padding:14px 0}
+footer{padding:24px 5%;border-top:1px solid var(--line);color:#899ab0;font-size:11px;line-height:1.7}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.panel{padding:17px}header{padding:15px 4%}main{width:92%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span>C</span> COLE BANK</div>
+  <button id="logout" class="outline small">Sign out</button>
+</header>
+
+<main id="app" class="hidden">
+  <div class="eyebrow">PRIVATE CLIENT PORTAL</div>
+  <h1 id="welcome">Welcome</h1>
+  <p class="muted">Your accounts and card management.</p>
+
+  <div class="banner">
+    TEST ENVIRONMENT ONLY — All displayed balances and card details
+    are simulated. No real bank accounts, credit facilities or
+    payment services are connected. Do not deposit real money.
+  </div>
+
+  <section class="panel">
+    <div class="row">
+      <div>
+        <div class="account-label">CLIENT NAME</div>
+        <h2 id="clientName" style="margin:8px 0">Loading profile...</h2>
+        <div class="muted" id="clientEmail"></div>
+      </div>
+      <span class="tag">TEST CLIENT</span>
+    </div>
+    <p class="notice">Name and surname should come from your verified
+    client profile when the profile database is connected.</p>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <div class="account-label">Main account</div>
+      <div class="balance" id="mainBalance">R 5,000.00</div>
+      <span class="tag">SIMULATED</span>
+    </article>
+    <article class="panel">
+      <div class="account-label">Savings account</div>
+      <div class="balance" id="savingBalance">R 2,500.00</div>
+      <span class="tag">SIMULATED</span>
+    </article>
+    <article class="panel">
+      <div class="account-label">Credit card balance</div>
+      <div class="balance" id="creditBalance">R 850.00</div>
+      <span class="tag">SIMULATED · AMOUNT OWED</span>
+    </article>
+  </section>
+
+  <section class="panel section">
+    <h2>My card</h2>
+    <div class="cardvisual">
+      <div class="row"><strong>COLE BANK</strong><span>TEST CARD</span></div>
+      <div class="cardnumber">•••• •••• •••• 4242</div>
+      <div class="row">
+        <span id="cardHolder">TEST CLIENT</span>
+        <span id="cardState" class="tag">ACTIVE · DEMO</span>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="account-label">Test credit limit</div>
+        <div class="balance" id="creditLimit">R 10,000.00</div>
+      </div>
+      <div class="actions">
+        <button id="limitButton">Update limit</button>
+        <button id="blockButton" class="outline">Temporary block</button>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:16px">
+      <button id="pinButton" class="outline">Change test PIN</button>
+      <button id="cvvButton" class="outline">Show test CVV</button>
+    </div>
+    <p id="cardMessage" class="notice">
+      Card controls only change this browser's temporary demonstration.
+    </p>
+  </section>
+
+  <section class="panel section">
+    <div class="row">
+      <h2>Pay beneficiary</h2>
+      <button id="addBeneficiaryButton">+ Add beneficiary</button>
+    </div>
+    <p class="muted">Save a test beneficiary and simulate a payment.
+    This does not send money to any bank account.</p>
+
+    <form id="beneficiaryForm" class="hidden">
+      <div class="formgrid">
+        <div class="full">
+          <label for="beneficiaryName">Beneficiary name</label>
+          <input id="beneficiaryName" maxlength="100" required>
+        </div>
+        <div class="full">
+          <label for="bankName">Bank name</label>
+          <input id="bankName" maxlength="100" required>
+        </div>
+        <div class="full">
+          <label for="accountNumber">Account number (test data only)</label>
+          <input id="accountNumber" inputmode="numeric" maxlength="30"
+            autocomplete="off" required>
+        </div>
+        <div class="full">
+          <label for="reference">Payment reference</label>
+          <input id="reference" maxlength="100" required>
+        </div>
+      </div>
+      <button type="submit">Save test beneficiary</button>
+      <button type="button" id="cancelBeneficiary" class="outline">Cancel</button>
+    </form>
+
+    <div id="beneficiaryList" class="muted">No beneficiaries added yet.</div>
+
+    <form id="paymentForm" class="hidden">
+      <h3 id="payTitle">Simulated payment</h3>
+      <label for="paymentAmount">Amount (ZAR)</label>
+      <input id="paymentAmount" type="number" min="1" max="5000"
+        step="0.01" required>
+      <p class="notice">Demo payment limit: R5,000 per transaction.
+      This is not a real transfer.</p>
+      <button type="submit">Simulate payment</button>
+      <button type="button" id="cancelPayment" class="outline">Cancel</button>
+    </form>
+    <div id="message" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="panel section">
+    <h2>Test transaction history</h2>
+    <div id="transactions" class="muted">No simulated transactions yet.</div>
+  </section>
+</main>
+
+<div id="loading" style="padding:35px 5%;color:#aab8cc">
+  Checking secure sign-in...
+</div>
+
+<footer>
+  © 2026 Cole Bank · Prototype for testing only.<br>
+  No real funds, credit, cards or bank transfers are provided by this page.
+</footer>
+
+<script type="module">
+import { createClient } from
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+// Use your SEPARATE TEST project's URL and publishable/anon key.
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+const $ = id => document.getElementById(id);
+const money = value => "R " + Number(value).toLocaleString("en-ZA", {
+  minimumFractionDigits: 2, maximumFractionDigits: 2
+});
+
+let supabase;
+let user;
+let blocked = false;
+let limit = 10000;
+let beneficiaries = [];
+let selectedBeneficiary = null;
+let transactions = [];
+let mainBalance = 5000;
+
+function say(text) { $("message").textContent = text; }
+
+function renderBeneficiaries() {
+  const list = $("beneficiaryList");
+  list.replaceChildren();
+
+  if (!beneficiaries.length) {
+    list.textContent = "No beneficiaries added yet.";
+    return;
+  }
+
+  beneficiaries.forEach((b, index) => {
+    const item = document.createElement("div");
+    item.className = "beneficiary";
+
+    const details = document.createElement("div");
+    details.textContent =
+      b.name + " · " + b.bank + " · Account ending " +
+      b.account.slice(-4) + " · Ref: " + b.reference;
+
+    const pay = document.createElement("button");
+    pay.className = "small";
+    pay.style.marginTop = "10px";
+    pay.textContent = "Pay (test)";
+    pay.addEventListener("click", () => {
+      selectedBeneficiary = index;
+      $("payTitle").textContent = "Simulate payment to " + b.name;
+      $("paymentForm").classList.remove("hidden");
+      $("paymentAmount").value = "";
+      say("Test mode: no money will be transferred.");
+    });
+
+    item.append(details, pay);
+    list.append(item);
+  });
+}
+
+function renderTransactions() {
+  const area = $("transactions");
+  area.replaceChildren();
+
+  if (!transactions.length) {
+    area.textContent = "No simulated transactions yet.";
+    return;
+  }
+
+  transactions.forEach(t => {
+    const line = document.createElement("div");
+    line.className = "beneficiary";
+    line.textContent = t.date + " · " + t.description +
+      " · " + money(t.amount) + " · TEST ONLY";
+    area.append(line);
+  });
+}
+
+$("addBeneficiaryButton").addEventListener("click", () => {
+  $("beneficiaryForm").classList.remove("hidden");
+});
+$("cancelBeneficiary").addEventListener("click", () => {
+  $("beneficiaryForm").reset();
+  $("beneficiaryForm").classList.add("hidden");
+});
+
+$("beneficiaryForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const account = $("accountNumber").value.trim();
+
+  if (!/^[0-9]{6,30}$/.test(account)) {
+    say("For this demo, use 6–30 digits as a fictional account number.");
+    return;
+  }
+
+  beneficiaries.push({
+    name: $("beneficiaryName").value.trim(),
+    bank: $("bankName").value.trim(),
+    account,
+    reference: $("reference").value.trim()
+  });
+
+  $("beneficiaryForm").reset();
+  $("beneficiaryForm").classList.add("hidden");
+  renderBeneficiaries();
+  say("Test beneficiary saved in this page's memory only.");
+});
+
+$("paymentForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const amount = Number($("paymentAmount").value);
+
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 5000) {
+    say("Enter a test amount between R1 and R5,000.");
+    return;
+  }
+  if (amount > mainBalance) {
+    say("Insufficient simulated main-account funds.");
+    return;
+  }
+  if (selectedBeneficiary === null ||
+      !beneficiaries[selectedBeneficiary]) {
+    say("Select a test beneficiary first.");
+    return;
+  }
+
+  const name = beneficiaries[selectedBeneficiary].name;
+  mainBalance -= amount;
+  $("mainBalance").textContent = money(mainBalance);
+  transactions.unshift({
+    date: new Date().toLocaleString(),
+    description: "TEST payment to " + name,
+    amount: -amount
+  });
+  renderTransactions();
+  $("paymentForm").classList.add("hidden");
+  $("paymentForm").reset();
+  say("Simulated payment completed. No real money moved.");
+});
+
+$("cancelPayment").addEventListener("click", () => {
+  $("paymentForm").classList.add("hidden");
+  selectedBeneficiary = null;
+});
+
+$("limitButton").addEventListener("click", () => {
+  const answer = prompt("Set DEMO credit limit in ZAR (100–50000):", limit);
+  if (answer === null) return;
+  const value = Number(answer);
+  if (!Number.isFinite(value) || value < 100 || value > 50000) {
+    $("cardMessage").textContent = "Enter a demo limit between R100 and R50,000.";
+    return;
+  }
+  limit = value;
+  $("creditLimit").textContent = money(limit);
+  $("cardMessage").textContent =
+    "Demo limit updated in memory only. No real credit limit changed.";
+});
+
+$("blockButton").addEventListener("click", () => {
+  blocked = !blocked;
+  $("cardState").textContent = blocked ? "BLOCKED · DEMO" : "ACTIVE · DEMO";
+  $("blockButton").textContent = blocked ? "Unblock test card" : "Temporary block";
+  $("cardMessage").textContent =
+    "Demo card " + (blocked ? "blocked." : "unblocked.") +
+    " This does not block any real card.";
+});
+
+$("pinButton").addEventListener("click", () => {
+  const pin = prompt("Enter a fictional 4-digit test PIN:");
+  if (pin === null) return;
+  if (!/^[0-9]{4}$/.test(pin)) {
+    $("cardMessage").textContent = "Use exactly 4 digits for this demo.";
+    return;
+  }
+  $("cardMessage").textContent =
+    "Test PIN accepted but not saved. No real card PIN was changed.";
+});
+
+$("cvvButton").addEventListener("click", () => {
+  $("cardMessage").textContent =
+    "DEMO CVV: 123 — fictional test value only, not a valid issued card.";
+});
+
+$("logout").addEventListener("click", async () => {
+  if (supabase) await supabase.auth.signOut();
+  window.location.replace("login.html");
+});
+
+async function start() {
+  if (!SUPABASE_URL.startsWith("https://") ||
+      SUPABASE_URL.includes("YOUR_SUPABASE") ||
+      !SUPABASE_KEY ||
+      SUPABASE_KEY.includes("YOUR_SUPABASE")) {
+    $("loading").textContent =
+      "Setup required: configure your test Supabase URL and publishable key.";
+    return;
+  }
+
+  supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error || !data.session) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  user = data.session.user;
+  $("clientEmail").textContent = user.email || "Email unavailable";
+  $("clientName").textContent =
+    "Test Client — profile not configured";
+  $("welcome").textContent = "Welcome to Cole Bank";
+  $("cardHolder").textContent = "TEST CLIENT";
+  $("loading").classList.add("hidden");
+  $("app").classList.remove("hidden");
+}
+
+start().catch(() => {
+  $("loading").textContent =
+    "Unable to initialise the test dashboard. Check your configuration.";
+});
+</script>
+</body>
+</html>
