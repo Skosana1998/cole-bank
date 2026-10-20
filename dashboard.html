@@ -5,7 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#081426">
+<meta name="description" content="Cole Bank account dashboard.">
 <title>My Banking | Cole Bank</title>
+
 <style>
 :root{--bg:#081426;--panel:#10213a;--gold:#dfbd70;--text:#f6f8fc;--muted:#aab8cc;--line:#2a3d57;--red:#e87575;--green:#83d6ae}
 *{box-sizing:border-box}
@@ -14,7 +16,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:17p
 .brand{font-weight:800;letter-spacing:2px}.brand span{color:var(--gold)}
 button,input,select{font:inherit}
 button{border:0;border-radius:9px;padding:12px 15px;background:var(--gold);color:#081426;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:wait}
 button.outline{background:transparent;border:1px solid var(--line);color:var(--text)}
 button.danger{background:#48252d;color:#ffd9dc;border:1px solid #79404a}
 button.small{padding:9px 11px;font-size:12px}
@@ -42,27 +44,35 @@ form button{width:100%;margin-top:15px}
 .cardvisual{background:linear-gradient(135deg,#1b3452,#0a1527);border:1px solid #52617a;border-radius:15px;padding:20px;max-width:420px;margin-bottom:18px}
 .cardnumber{font-size:19px;letter-spacing:2px;margin:25px 0;overflow-wrap:anywhere}
 .notice{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px}
-#message{margin-top:12px;font-size:13px;line-height:1.6}
-.beneficiary{border-top:1px solid var(--line);padding:14px 0}
+#message,#cardMessage{margin-top:12px;font-size:13px;line-height:1.6}
+.beneficiary{border-top:1px solid var(--line);padding:14px 0;overflow-wrap:anywhere}
 footer{padding:24px 5%;border-top:1px solid var(--line);color:#899ab0;font-size:11px;line-height:1.7}
+.status-error{color:#ffaaaa}
+.status-success{color:var(--green)}
 @media(max-width:720px){.grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.panel{padding:17px}header{padding:15px 4%}main{width:92%}}
 </style>
 </head>
+
 <body>
 <header>
   <div class="brand"><span>C</span> COLE BANK</div>
-  <button id="logout" class="outline small">Sign out</button>
+  <button id="logout" class="outline small" type="button">Sign out</button>
 </header>
+
+<div id="loading" style="padding:35px 5%;color:#aab8cc">
+  Checking your Appwrite session...
+</div>
 
 <main id="app" class="hidden">
   <div class="eyebrow">PRIVATE CLIENT PORTAL</div>
   <h1 id="welcome">Welcome</h1>
-  <p class="muted">Your accounts and card management.</p>
+  <p class="muted">Your account overview and card management.</p>
 
   <div class="banner">
-    TEST ENVIRONMENT ONLY — All displayed balances and card details
-    are simulated. No real bank accounts, credit facilities or
-    payment services are connected. Do not deposit real money.
+    TEST ENVIRONMENT ONLY — This dashboard is a prototype. Displayed
+    balances, card controls, beneficiaries and payments are simulated.
+    No real bank account, credit facility or payment service is connected.
+    Do not deposit money based on a displayed balance.
   </div>
 
   <section class="panel">
@@ -72,23 +82,27 @@ footer{padding:24px 5%;border-top:1px solid var(--line);color:#899ab0;font-size:
         <h2 id="clientName" style="margin:8px 0">Loading profile...</h2>
         <div class="muted" id="clientEmail"></div>
       </div>
-      <span class="tag">TEST CLIENT</span>
+      <span class="tag">APPWRITE LOGIN</span>
     </div>
-    <p class="notice">Name and surname should come from your verified
-    client profile when the profile database is connected.</p>
+    <p class="notice">
+      The name and email below come from your Appwrite account.
+      A verified banking customer profile has not been configured.
+    </p>
   </section>
 
   <section class="grid">
     <article class="panel">
-      <div class="account-label">Main account</div>
+      <div class="account-label" id="mainLabel">Main account · test balance</div>
       <div class="balance" id="mainBalance">R 5,000.00</div>
-      <span class="tag">SIMULATED</span>
+      <span class="tag">SIMULATED · NOT REAL FUNDS</span>
     </article>
+
     <article class="panel">
       <div class="account-label">Savings account</div>
       <div class="balance" id="savingBalance">R 2,500.00</div>
       <span class="tag">SIMULATED</span>
     </article>
+
     <article class="panel">
       <div class="account-label">Credit card balance</div>
       <div class="balance" id="creditBalance">R 850.00</div>
@@ -98,40 +112,61 @@ footer{padding:24px 5%;border-top:1px solid var(--line);color:#899ab0;font-size:
 
   <section class="panel section">
     <h2>My card</h2>
+
     <div class="cardvisual">
-      <div class="row"><strong>COLE BANK</strong><span>TEST CARD</span></div>
+      <div class="row">
+        <strong>COLE BANK</strong>
+        <span>TEST CARD</span>
+      </div>
+
       <div class="cardnumber">•••• •••• •••• 4242</div>
+
       <div class="row">
         <span id="cardHolder">TEST CLIENT</span>
         <span id="cardState" class="tag">ACTIVE · DEMO</span>
       </div>
     </div>
+
     <div class="row">
       <div>
         <div class="account-label">Test credit limit</div>
         <div class="balance" id="creditLimit">R 10,000.00</div>
       </div>
+
       <div class="actions">
-        <button id="limitButton">Update limit</button>
-        <button id="blockButton" class="outline">Temporary block</button>
+        <button id="limitButton" type="button">Update limit</button>
+        <button id="blockButton" class="outline" type="button">
+          Temporary block
+        </button>
       </div>
     </div>
+
     <div class="actions" style="margin-top:16px">
-      <button id="pinButton" class="outline">Change test PIN</button>
-      <button id="cvvButton" class="outline">Show test CVV</button>
+      <button id="pinButton" class="outline" type="button">
+        Change test PIN
+      </button>
+      <button id="cvvButton" class="outline" type="button">
+        Show test CVV
+      </button>
     </div>
+
     <p id="cardMessage" class="notice">
-      Card controls only change this browser's temporary demonstration.
+      Card controls only change this page's temporary demonstration.
     </p>
   </section>
 
   <section class="panel section">
     <div class="row">
       <h2>Pay beneficiary</h2>
-      <button id="addBeneficiaryButton">+ Add beneficiary</button>
+      <button id="addBeneficiaryButton" type="button">
+        + Add beneficiary
+      </button>
     </div>
-    <p class="muted">Save a test beneficiary and simulate a payment.
-    This does not send money to any bank account.</p>
+
+    <p class="muted">
+      Add a fictional beneficiary and simulate a payment. This does not
+      send money to a bank account.
+    </p>
 
     <form id="beneficiaryForm" class="hidden">
       <div class="formgrid">
@@ -139,274 +174,447 @@ footer{padding:24px 5%;border-top:1px solid var(--line);color:#899ab0;font-size:
           <label for="beneficiaryName">Beneficiary name</label>
           <input id="beneficiaryName" maxlength="100" required>
         </div>
+
         <div class="full">
           <label for="bankName">Bank name</label>
           <input id="bankName" maxlength="100" required>
         </div>
+
         <div class="full">
-          <label for="accountNumber">Account number (test data only)</label>
+          <label for="accountNumber">Fictional account number</label>
           <input id="accountNumber" inputmode="numeric" maxlength="30"
             autocomplete="off" required>
         </div>
+
         <div class="full">
           <label for="reference">Payment reference</label>
           <input id="reference" maxlength="100" required>
         </div>
       </div>
+
       <button type="submit">Save test beneficiary</button>
-      <button type="button" id="cancelBeneficiary" class="outline">Cancel</button>
+      <button type="button" id="cancelBeneficiary" class="outline">
+        Cancel
+      </button>
     </form>
 
-    <div id="beneficiaryList" class="muted">No beneficiaries added yet.</div>
+    <div id="beneficiaryList" class="muted">
+      No beneficiaries added yet.
+    </div>
 
     <form id="paymentForm" class="hidden">
       <h3 id="payTitle">Simulated payment</h3>
+
       <label for="paymentAmount">Amount (ZAR)</label>
       <input id="paymentAmount" type="number" min="1" max="5000"
         step="0.01" required>
-      <p class="notice">Demo payment limit: R5,000 per transaction.
-      This is not a real transfer.</p>
+
+      <p class="notice">
+        Test limit: R5,000 per transaction. No real transfer is made.
+      </p>
+
       <button type="submit">Simulate payment</button>
-      <button type="button" id="cancelPayment" class="outline">Cancel</button>
+      <button type="button" id="cancelPayment" class="outline">
+        Cancel
+      </button>
     </form>
+
     <div id="message" role="status" aria-live="polite"></div>
   </section>
 
   <section class="panel section">
     <h2>Test transaction history</h2>
-    <div id="transactions" class="muted">No simulated transactions yet.</div>
+    <div id="transactions" class="muted">
+      No simulated transactions yet.
+    </div>
   </section>
 </main>
 
-<div id="loading" style="padding:35px 5%;color:#aab8cc">
-  Checking secure sign-in...
-</div>
-
 <footer>
   © 2026 Cole Bank · Prototype for testing only.<br>
-  No real funds, credit, cards or bank transfers are provided by this page.
+  Appwrite provides authentication here, not bank deposits, credit cards
+  or real money transfers.
 </footer>
 
-<script type="module">
-import { createClient } from
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+<!-- Appwrite Web SDK -->
+<script src="https://cdn.jsdelivr.net/npm/appwrite@29.0.0"></script>
 
-// Use your SEPARATE TEST project's URL and publishable/anon key.
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+<script>
+(() => {
+  "use strict";
 
-const $ = id => document.getElementById(id);
-const money = value => "R " + Number(value).toLocaleString("en-ZA", {
-  minimumFractionDigits: 2, maximumFractionDigits: 2
-});
+  const APPWRITE_ENDPOINT = "https://nyc.cloud.appwrite.io/v1";
+  const APPWRITE_PROJECT_ID = "6ad745480034e078da3e";
 
-let supabase;
-let user;
-let blocked = false;
-let limit = 10000;
-let beneficiaries = [];
-let selectedBeneficiary = null;
-let transactions = [];
-let mainBalance = 5000;
+  /*
+    OPTIONAL OWNER DISPLAY SETUP
 
-function say(text) { $("message").textContent = text; }
+    To show the R1,000,000 DEMONSTRATION balance only for your login,
+    replace the value below with the email address you use to sign in.
 
-function renderBeneficiaries() {
-  const list = $("beneficiaryList");
-  list.replaceChildren();
+    This is only a visual demo setting. It is NOT secure account
+    authorization and does NOT represent verified or available money.
+    Do not use this setting for real funds.
+  */
+  const OWNER_EMAIL = "REPLACE_WITH_YOUR_APPWRITE_EMAIL";
 
-  if (!beneficiaries.length) {
-    list.textContent = "No beneficiaries added yet.";
-    return;
+  const $ = id => document.getElementById(id);
+
+  const money = value => "R " + Number(value).toLocaleString("en-ZA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  let account;
+  let currentUser = null;
+  let mainBalance = 5000;
+  let creditLimit = 10000;
+  let cardBlocked = false;
+  let beneficiaries = [];
+  let selectedBeneficiary = null;
+  let transactions = [];
+  let isSigningOut = false;
+
+  function showMessage(text, type = "") {
+    const element = $("message");
+    element.textContent = text;
+    element.className = type;
   }
 
-  beneficiaries.forEach((b, index) => {
-    const item = document.createElement("div");
-    item.className = "beneficiary";
+  function showCardMessage(text) {
+    $("cardMessage").textContent = text;
+  }
 
-    const details = document.createElement("div");
-    details.textContent =
-      b.name + " · " + b.bank + " · Account ending " +
-      b.account.slice(-4) + " · Ref: " + b.reference;
+  function showFatalMessage(text) {
+    $("loading").textContent = text;
+    $("loading").classList.remove("hidden");
+    $("app").classList.add("hidden");
+  }
 
-    const pay = document.createElement("button");
-    pay.className = "small";
-    pay.style.marginTop = "10px";
-    pay.textContent = "Pay (test)";
-    pay.addEventListener("click", () => {
-      selectedBeneficiary = index;
-      $("payTitle").textContent = "Simulate payment to " + b.name;
-      $("paymentForm").classList.remove("hidden");
-      $("paymentAmount").value = "";
-      say("Test mode: no money will be transferred.");
+  function renderBeneficiaries() {
+    const list = $("beneficiaryList");
+    list.replaceChildren();
+
+    if (beneficiaries.length === 0) {
+      list.textContent = "No beneficiaries added yet.";
+      return;
+    }
+
+    beneficiaries.forEach((beneficiary, index) => {
+      const item = document.createElement("div");
+      item.className = "beneficiary";
+
+      const details = document.createElement("div");
+      details.textContent =
+        beneficiary.name + " · " + beneficiary.bank +
+        " · Account ending " + beneficiary.account.slice(-4) +
+        " · Ref: " + beneficiary.reference;
+
+      const payButton = document.createElement("button");
+      payButton.className = "small";
+      payButton.style.marginTop = "10px";
+      payButton.type = "button";
+      payButton.textContent = "Pay (test)";
+
+      payButton.addEventListener("click", () => {
+        selectedBeneficiary = index;
+        $("payTitle").textContent =
+          "Simulate payment to " + beneficiary.name;
+        $("paymentAmount").value = "";
+        $("paymentForm").classList.remove("hidden");
+        showMessage("Test mode: no money will be transferred.");
+      });
+
+      item.append(details, payButton);
+      list.append(item);
+    });
+  }
+
+  function renderTransactions() {
+    const area = $("transactions");
+    area.replaceChildren();
+
+    if (transactions.length === 0) {
+      area.textContent = "No simulated transactions yet.";
+      return;
+    }
+
+    transactions.forEach(transaction => {
+      const line = document.createElement("div");
+      line.className = "beneficiary";
+      line.textContent =
+        transaction.date + " · " +
+        transaction.description + " · " +
+        money(transaction.amount) + " · TEST ONLY";
+
+      area.append(line);
+    });
+  }
+
+  function updateBalanceDisplay() {
+    $("mainBalance").textContent = money(mainBalance);
+  }
+
+  function initialiseUser(user) {
+    currentUser = user;
+
+    const displayName =
+      typeof user.name === "string" && user.name.trim()
+        ? user.name.trim()
+        : "Cole Bank Client";
+
+    $("clientName").textContent = displayName;
+    $("clientEmail").textContent = user.email || "Email unavailable";
+    $("welcome").textContent = "Welcome, " + displayName;
+    $("cardHolder").textContent = displayName.toUpperCase();
+
+    /*
+      Demo display only. Every client-side value can be changed by
+      a visitor. Real account balances must come from a trusted backend.
+    */
+    const isOwnerDemo =
+      OWNER_EMAIL !== "REPLACE_WITH_YOUR_APPWRITE_EMAIL" &&
+      user.email &&
+      user.email.toLowerCase() === OWNER_EMAIL.trim().toLowerCase();
+
+    if (isOwnerDemo) {
+      mainBalance = 1000000;
+      $("mainLabel").textContent = "Owner test balance · simulated";
+    } else {
+      mainBalance = 5000;
+      $("mainLabel").textContent = "Main account · test balance";
+    }
+
+    updateBalanceDisplay();
+  }
+
+  async function start() {
+    if (!window.Appwrite) {
+      showFatalMessage(
+        "Appwrite SDK did not load. Check your internet connection and reload."
+      );
+      return;
+    }
+
+    try {
+      const client = new Appwrite.Client()
+        .setEndpoint(APPWRITE_ENDPOINT)
+        .setProject(APPWRITE_PROJECT_ID);
+
+      account = new Appwrite.Account(client);
+
+      const user = await account.get();
+
+      if (!user || !user.$id) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      initialiseUser(user);
+      $("loading").classList.add("hidden");
+      $("app").classList.remove("hidden");
+    } catch (error) {
+      console.error("Appwrite session check failed:", error);
+
+      /*
+        A failed session check should not expose the dashboard.
+        Return to login rather than treating an error as authentication.
+      */
+      window.location.replace("login.html");
+    }
+  }
+
+  $("logout").addEventListener("click", async () => {
+    if (isSigningOut) return;
+
+    isSigningOut = true;
+    $("logout").disabled = true;
+    $("logout").textContent = "Signing out...";
+
+    try {
+      if (!account) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      await account.deleteSession({ sessionId: "current" });
+      window.location.replace("login.html");
+    } catch (error) {
+      console.error("Appwrite sign-out failed:", error);
+
+      $("logout").disabled = false;
+      $("logout").textContent = "Sign out";
+      isSigningOut = false;
+
+      showMessage(
+        "Sign-out failed. Check your connection and try again.",
+        "status-error"
+      );
+    }
+  });
+
+  $("addBeneficiaryButton").addEventListener("click", () => {
+    $("beneficiaryForm").classList.remove("hidden");
+  });
+
+  $("cancelBeneficiary").addEventListener("click", () => {
+    $("beneficiaryForm").reset();
+    $("beneficiaryForm").classList.add("hidden");
+    showMessage("");
+  });
+
+  $("beneficiaryForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    const accountNumber = $("accountNumber").value.trim();
+
+    if (!/^[0-9]{6,30}$/.test(accountNumber)) {
+      showMessage(
+        "For this demo, use a fictional account number of 6–30 digits.",
+        "status-error"
+      );
+      return;
+    }
+
+    beneficiaries.push({
+      name: $("beneficiaryName").value.trim(),
+      bank: $("bankName").value.trim(),
+      account: accountNumber,
+      reference: $("reference").value.trim()
     });
 
-    item.append(details, pay);
-    list.append(item);
-  });
-}
+    $("beneficiaryForm").reset();
+    $("beneficiaryForm").classList.add("hidden");
+    renderBeneficiaries();
 
-function renderTransactions() {
-  const area = $("transactions");
-  area.replaceChildren();
-
-  if (!transactions.length) {
-    area.textContent = "No simulated transactions yet.";
-    return;
-  }
-
-  transactions.forEach(t => {
-    const line = document.createElement("div");
-    line.className = "beneficiary";
-    line.textContent = t.date + " · " + t.description +
-      " · " + money(t.amount) + " · TEST ONLY";
-    area.append(line);
-  });
-}
-
-$("addBeneficiaryButton").addEventListener("click", () => {
-  $("beneficiaryForm").classList.remove("hidden");
-});
-$("cancelBeneficiary").addEventListener("click", () => {
-  $("beneficiaryForm").reset();
-  $("beneficiaryForm").classList.add("hidden");
-});
-
-$("beneficiaryForm").addEventListener("submit", event => {
-  event.preventDefault();
-  const account = $("accountNumber").value.trim();
-
-  if (!/^[0-9]{6,30}$/.test(account)) {
-    say("For this demo, use 6–30 digits as a fictional account number.");
-    return;
-  }
-
-  beneficiaries.push({
-    name: $("beneficiaryName").value.trim(),
-    bank: $("bankName").value.trim(),
-    account,
-    reference: $("reference").value.trim()
+    showMessage(
+      "Test beneficiary added in this page's memory only.",
+      "status-success"
+    );
   });
 
-  $("beneficiaryForm").reset();
-  $("beneficiaryForm").classList.add("hidden");
-  renderBeneficiaries();
-  say("Test beneficiary saved in this page's memory only.");
-});
+  $("paymentForm").addEventListener("submit", event => {
+    event.preventDefault();
 
-$("paymentForm").addEventListener("submit", event => {
-  event.preventDefault();
-  const amount = Number($("paymentAmount").value);
+    const amount = Number($("paymentAmount").value);
 
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 5000) {
-    say("Enter a test amount between R1 and R5,000.");
-    return;
-  }
-  if (amount > mainBalance) {
-    say("Insufficient simulated main-account funds.");
-    return;
-  }
-  if (selectedBeneficiary === null ||
-      !beneficiaries[selectedBeneficiary]) {
-    say("Select a test beneficiary first.");
-    return;
-  }
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 5000) {
+      showMessage(
+        "Enter a test amount between R1 and R5,000.",
+        "status-error"
+      );
+      return;
+    }
 
-  const name = beneficiaries[selectedBeneficiary].name;
-  mainBalance -= amount;
-  $("mainBalance").textContent = money(mainBalance);
-  transactions.unshift({
-    date: new Date().toLocaleString(),
-    description: "TEST payment to " + name,
-    amount: -amount
+    if (amount > mainBalance) {
+      showMessage(
+        "Insufficient simulated main-account funds.",
+        "status-error"
+      );
+      return;
+    }
+
+    if (
+      selectedBeneficiary === null ||
+      !beneficiaries[selectedBeneficiary]
+    ) {
+      showMessage("Choose a test beneficiary first.", "status-error");
+      return;
+    }
+
+    const beneficiary = beneficiaries[selectedBeneficiary];
+
+    mainBalance -= amount;
+    updateBalanceDisplay();
+
+    transactions.unshift({
+      date: new Date().toLocaleString("en-ZA"),
+      description: "TEST payment to " + beneficiary.name,
+      amount: -amount
+    });
+
+    renderTransactions();
+
+    $("paymentForm").classList.add("hidden");
+    $("paymentForm").reset();
+    selectedBeneficiary = null;
+
+    showMessage(
+      "Simulated payment completed. No real money moved.",
+      "status-success"
+    );
   });
-  renderTransactions();
-  $("paymentForm").classList.add("hidden");
-  $("paymentForm").reset();
-  say("Simulated payment completed. No real money moved.");
-});
 
-$("cancelPayment").addEventListener("click", () => {
-  $("paymentForm").classList.add("hidden");
-  selectedBeneficiary = null;
-});
+  $("cancelPayment").addEventListener("click", () => {
+    $("paymentForm").classList.add("hidden");
+    $("paymentForm").reset();
+    selectedBeneficiary = null;
+    showMessage("");
+  });
 
-$("limitButton").addEventListener("click", () => {
-  const answer = prompt("Set DEMO credit limit in ZAR (100–50000):", limit);
-  if (answer === null) return;
-  const value = Number(answer);
-  if (!Number.isFinite(value) || value < 100 || value > 50000) {
-    $("cardMessage").textContent = "Enter a demo limit between R100 and R50,000.";
-    return;
-  }
-  limit = value;
-  $("creditLimit").textContent = money(limit);
-  $("cardMessage").textContent =
-    "Demo limit updated in memory only. No real credit limit changed.";
-});
+  $("limitButton").addEventListener("click", () => {
+    const answer = prompt(
+      "Set DEMO credit limit in ZAR (100–50000):",
+      String(creditLimit)
+    );
 
-$("blockButton").addEventListener("click", () => {
-  blocked = !blocked;
-  $("cardState").textContent = blocked ? "BLOCKED · DEMO" : "ACTIVE · DEMO";
-  $("blockButton").textContent = blocked ? "Unblock test card" : "Temporary block";
-  $("cardMessage").textContent =
-    "Demo card " + (blocked ? "blocked." : "unblocked.") +
-    " This does not block any real card.";
-});
+    if (answer === null) return;
 
-$("pinButton").addEventListener("click", () => {
-  const pin = prompt("Enter a fictional 4-digit test PIN:");
-  if (pin === null) return;
-  if (!/^[0-9]{4}$/.test(pin)) {
-    $("cardMessage").textContent = "Use exactly 4 digits for this demo.";
-    return;
-  }
-  $("cardMessage").textContent =
-    "Test PIN accepted but not saved. No real card PIN was changed.";
-});
+    const value = Number(answer);
 
-$("cvvButton").addEventListener("click", () => {
-  $("cardMessage").textContent =
-    "DEMO CVV: 123 — fictional test value only, not a valid issued card.";
-});
+    if (!Number.isFinite(value) || value < 100 || value > 50000) {
+      showCardMessage("Enter a demo limit between R100 and R50,000.");
+      return;
+    }
 
-$("logout").addEventListener("click", async () => {
-  if (supabase) await supabase.auth.signOut();
-  window.location.replace("login.html");
-});
+    creditLimit = value;
+    $("creditLimit").textContent = money(creditLimit);
 
-async function start() {
-  if (!SUPABASE_URL.startsWith("https://") ||
-      SUPABASE_URL.includes("YOUR_SUPABASE") ||
-      !SUPABASE_KEY ||
-      SUPABASE_KEY.includes("YOUR_SUPABASE")) {
-    $("loading").textContent =
-      "Setup required: configure your test Supabase URL and publishable key.";
-    return;
-  }
+    showCardMessage(
+      "Demo limit updated in memory only. No real credit limit changed."
+    );
+  });
 
-  supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data, error } = await supabase.auth.getSession();
+  $("blockButton").addEventListener("click", () => {
+    cardBlocked = !cardBlocked;
 
-  if (error || !data.session) {
-    window.location.replace("login.html");
-    return;
-  }
+    $("cardState").textContent = cardBlocked
+      ? "BLOCKED · DEMO"
+      : "ACTIVE · DEMO";
 
-  user = data.session.user;
-  $("clientEmail").textContent = user.email || "Email unavailable";
-  $("clientName").textContent =
-    "Test Client — profile not configured";
-  $("welcome").textContent = "Welcome to Cole Bank";
-  $("cardHolder").textContent = "TEST CLIENT";
-  $("loading").classList.add("hidden");
-  $("app").classList.remove("hidden");
-}
+    $("blockButton").textContent = cardBlocked
+      ? "Unblock test card"
+      : "Temporary block";
 
-start().catch(() => {
-  $("loading").textContent =
-    "Unable to initialise the test dashboard. Check your configuration.";
-});
+    showCardMessage(
+      "Demo card " + (cardBlocked ? "blocked." : "unblocked.") +
+      " No real card has been affected."
+    );
+  });
+
+  $("pinButton").addEventListener("click", () => {
+    const pin = prompt("Enter a fictional 4-digit test PIN:");
+
+    if (pin === null) return;
+
+    if (!/^[0-9]{4}$/.test(pin)) {
+      showCardMessage("For this demo, use exactly 4 digits.");
+      return;
+    }
+
+    showCardMessage(
+      "Test PIN accepted but not saved. No real card PIN was changed."
+    );
+  });
+
+  $("cvvButton").addEventListener("click", () => {
+    showCardMessage(
+      "DEMO CVV: 123. Fictional test value only; not an issued card."
+    );
+  });
+
+  start();
+})();
 </script>
 </body>
 </html>
